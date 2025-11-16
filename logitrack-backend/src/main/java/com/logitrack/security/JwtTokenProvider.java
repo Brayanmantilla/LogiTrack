@@ -1,15 +1,14 @@
 package com.logitrack.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
@@ -20,53 +19,44 @@ public class JwtTokenProvider {
     private String jwtSecret;
     
     @Value("${jwt.expiration}")
-    private long jwtExpiration;
+    private long jwtExpirationMs;
     
     private SecretKey getSigningKey() {
-        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
     
-    public String generateToken(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    public String generateToken(String email) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpiration);
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
         
         return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(getSigningKey())
-                .compact();
+            .subject(email)
+            .issuedAt(now)
+            .expiration(expiryDate)
+            .signWith(getSigningKey())
+            .compact();
     }
     
     public String getUsernameFromToken(String token) {
         Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+            .verifyWith(getSigningKey())
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
         
         return claims.getSubject();
     }
     
-    public boolean validateToken(String token) {
+    public boolean validateToken(String authToken) {
         try {
             Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
-                .parseSignedClaims(token);
+                .parseSignedClaims(authToken);
             return true;
-        } catch (SecurityException ex) {
-            log.error("Firma JWT inválida");
-        } catch (MalformedJwtException ex) {
-            log.error("Token JWT inválido");
-        } catch (ExpiredJwtException ex) {
-            log.error("Token JWT expirado");
-        } catch (UnsupportedJwtException ex) {
-            log.error("Token JWT no soportado");
-        } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string está vacío");
+        } catch (Exception ex) {
+            log.error("Token JWT inválido: {}", ex.getMessage());
         }
         return false;
     }

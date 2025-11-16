@@ -6,7 +6,7 @@ import com.logitrack.service.AuditoriaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/auditorias")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 @CrossOrigin(origins = "*")
 public class AuditoriaController {
     

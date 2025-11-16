@@ -1,5 +1,6 @@
 package com.logitrack.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.logitrack.model.enums.TipoMovimiento;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -8,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+
 
 import java.time.LocalDateTime;
 
@@ -31,20 +33,24 @@ public class Movimiento {
     @Column(name = "tipo_movimiento", nullable = false, length = 20)
     private TipoMovimiento tipoMovimiento;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "usuario_id", nullable = false)
     @NotNull(message = "El usuario es obligatorio")
     private Usuario usuario;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "bodega_origen_id")
     private Bodega bodegaOrigen;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "bodega_destino_id")
     private Bodega bodegaDestino;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "producto_id", nullable = false)
     @NotNull(message = "El producto es obligatorio")
     private Producto producto;

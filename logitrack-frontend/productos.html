@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - LogiTrack</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="bi bi-box-seam me-2"></i>
+                LogiTrack
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">
+                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="bodegas.html">
+                            <i class="bi bi-building me-1"></i>Bodegas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="productos.html">
+                            <i class="bi bi-box me-1"></i>Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="movimientos.html">
+                            <i class="bi bi-arrow-left-right me-1"></i>Movimientos
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <span id="userName">Usuario</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <span class="dropdown-item-text">
+                                    <small class="text-muted" id="userEmail">usuario@ejemplo.com</small>
+                                </span>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="#" onclick="logout()">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="container-fluid mt-4">
+        
+        <!-- Encabezado -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2 class="mb-1">
+                    <i class="bi bi-box me-2"></i>
+                    Gestión de Productos
+                </h2>
+                <p class="text-muted">Administra el catálogo de productos</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProducto" onclick="openCreateModal()">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Nuevo Producto
+                </button>
+            </div>
+        </div>
+
+        <!-- Contenedor de alertas -->
+        <div id="alertContainer"></div>
+
+        <!-- Filtros -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Buscar producto..." onkeyup="filterProducts()">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterEstado" onchange="filterProducts()">
+                    <option value="">Todos los estados</option>
+                    <option value="true">Activos</option>
+                    <option value="false">Inactivos</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterStock" onchange="filterProducts()">
+                    <option value="">Todo el stock</option>
+                    <option value="bajo">Stock bajo</option>
+                    <option value="normal">Stock normal</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabla de productos -->
+        <div class="row">
+            <div class="col-12">
+                <div class="table-container">
+                    <div id="tableContainer">
+                        <!-- Se llenará con JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal para Crear/Editar Producto -->
+    <div class="modal fade" id="modalProducto" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">
+                        <i class="bi bi-box me-2"></i>
+                        Nuevo Producto
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formProducto">
+                        <input type="hidden" id="productoId">
+                        
+                        <div class="row">
+                            <!-- Nombre -->
+                            <div class="col-md-6 mb-3">
+                                <label for="nombre" class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="nombre" required placeholder="Ej: Laptop HP">
+                            </div>
+
+                            <!-- SKU -->
+                            <div class="col-md-6 mb-3">
+                                <label for="sku" class="form-label">SKU *</label>
+                                <input type="text" class="form-control" id="sku" required placeholder="Ej: LAP-HP-001">
+                                <small class="text-muted">Código único del producto</small>
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="col-12 mb-3">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="descripcion" rows="2" placeholder="Descripción del producto (opcional)"></textarea>
+                            </div>
+
+                            <!-- Precio Unitario -->
+                            <div class="col-md-6 mb-3">
+                                <label for="precioUnitario" class="form-label">Precio Unitario *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="precioUnitario" required min="0" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <!-- Stock Actual -->
+                            <div class="col-md-6 mb-3">
+                                <label for="stockActual" class="form-label">Stock Actual *</label>
+                                <input type="number" class="form-control" id="stockActual" required min="0" placeholder="0">
+                            </div>
+
+                            <!-- Stock Mínimo -->
+                            <div class="col-md-6 mb-3">
+                                <label for="stockMinimo" class="form-label">Stock Mínimo *</label>
+                                <input type="number" class="form-control" id="stockMinimo" required min="0" placeholder="0">
+                                <small class="text-muted">Nivel de alerta de stock bajo</small>
+                            </div>
+
+                            <!-- Unidad de Medida -->
+                            <div class="col-md-6 mb-3">
+                                <label for="unidadMedida" class="form-label">Unidad de Medida *</label>
+                                <select class="form-select" id="unidadMedida" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="UNIDAD">Unidad</option>
+                                    <option value="CAJA">Caja</option>
+                                    <option value="PAQUETE">Paquete</option>
+                                    <option value="KG">Kilogramo</option>
+                                    <option value="LITRO">Litro</option>
+                                    <option value="METRO">Metro</option>
+                                </select>
+                            </div>
+
+                            <!-- Estado (solo en edición) -->
+                            <div class="col-md-6 mb-3" id="estadoContainer" style="display: none;">
+                                <label for="activo" class="form-label">Estado</label>
+                                <select class="form-select" id="activo">
+                                    <option value="true">Activo</option>
+                                    <option value="false">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i>
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnGuardar" onclick="saveProducto()">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Scripts personalizados -->
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    
+    <!-- Script de productos -->
+    <script>
+        // ============================================
+        // PRODUCTOS - LÓGICA PRINCIPAL
+        // ============================================
+
+        let modalProducto;
+        let editingId = null;
+        let allProductos = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar modal
+            modalProducto = new bootstrap.Modal(document.getElementById('modalProducto'));
+            
+            // Cargar productos
+            loadProductos();
+        });
+
+        // ============================================
+        // CARGAR PRODUCTOS
+        // ============================================
+
+        async function loadProductos() {
+            const container = document.getElementById('tableContainer');
+            
+            try {
+                showLoading('tableContainer');
+                
+                allProductos = await productosAPI.getAll();
+                
+                if (allProductos.length === 0) {
+                    showNoData('tableContainer', 'No hay productos registrados');
+                    return;
+                }
+
+                renderProductos(allProductos);
+
+            } catch (error) {
+                console.error('Error cargando productos:', error);
+                showErrorAlert('Error al cargar los productos');
+            }
+        }
+
+        // ============================================
+        // RENDERIZAR PRODUCTOS
+        // ============================================
+
+        function renderProductos(productos) {
+            const container = document.getElementById('tableContainer');
+
+            let html = `
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>SKU</th>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Stock Actual</th>
+                                <th>Stock Mín.</th>
+                                <th>Unidad</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            productos.forEach(producto => {
+                const stockBadge = producto.stockActual <= producto.stockMinimo 
+                    ? '<span class="badge badge-warning">Bajo</span>'
+                    : '<span class="badge badge-success">Normal</span>';
+
+                html += `
+                    <tr>
+                        <td><strong>#${producto.id}</strong></td>
+                        <td><code>${producto.sku}</code></td>
+                        <td><strong>${producto.nombre}</strong></td>
+                        <td>${formatCurrency(producto.precioUnitario)}</td>
+                        <td>
+                            <strong>${formatNumber(producto.stockActual)}</strong>
+                            ${stockBadge}
+                        </td>
+                        <td>${formatNumber(producto.stockMinimo)}</td>
+                        <td><small>${producto.unidadMedida || 'N/A'}</small></td>
+                        <td>
+                            ${producto.activo 
+                                ? '<span class="badge badge-success">Activo</span>' 
+                                : '<span class="badge badge-danger">Inactivo</span>'}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="openEditModal(${producto.id})" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProducto(${producto.id}, '${producto.nombre}')" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // FILTRAR PRODUCTOS
+        // ============================================
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filterEstado = document.getElementById('filterEstado').value;
+            const filterStock = document.getElementById('filterStock').value;
+
+            let filtered = allProductos;
+
+            // Filtrar por búsqueda
+            if (searchTerm) {
+                filtered = filtered.filter(p => 
+                    p.nombre.toLowerCase().includes(searchTerm) ||
+                    p.sku.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Filtrar por estado
+            if (filterEstado !== '') {
+                filtered = filtered.filter(p => p.activo.toString() === filterEstado);
+            }
+
+            // Filtrar por stock
+            if (filterStock === 'bajo') {
+                filtered = filtered.filter(p => p.stockActual <= p.stockMinimo);
+            } else if (filterStock === 'normal') {
+                filtered = filtered.filter(p => p.stockActual > p.stockMinimo);
+            }
+
+            renderProductos(filtered);
+        }
+
+        // ============================================
+        // ABRIR MODAL CREAR
+        // ============================================
+
+        function openCreateModal() {
+            editingId = null;
+            document.getElementById('modalTitle').innerHTML = '<i class="bi bi-box me-2"></i>Nuevo Producto';
+            document.getElementById('formProducto').reset();
+            document.getElementById('productoId').value = '';
+            document.getElementById('estadoContainer').style.display = 'none';
+        }
+
+        // ============================================
+        // ABRIR MODAL EDITAR
+        // ============================================
+
+        async function openEditModal(id) {
+            try {
+                editingId = id;
+                
+                const producto = await productosAPI.getById(id);
+                
+                document.getElementById('modalTitle').innerHTML = '<i class="bi bi-pencil me-2"></i>Editar Producto';
+                document.getElementById('productoId').value = producto.id;
+                document.getElementById('nombre').value = producto.nombre;
+                document.getElementById('sku').value = producto.sku;
+                document.getElementById('descripcion').value = producto.descripcion || '';
+                document.getElementById('precioUnitario').value = producto.precioUnitario;
+                document.getElementById('stockActual').value = producto.stockActual;
+                document.getElementById('stockMinimo').value = producto.stockMinimo;
+                document.getElementById('unidadMedida').value = producto.unidadMedida || '';
+                document.getElementById('activo').value = producto.activo.toString();
+                document.getElementById('estadoContainer').style.display = 'block';
+                
+                modalProducto.show();
+                
+            } catch (error) {
+                console.error('Error cargando producto:', error);
+                showErrorAlert('Error al cargar el producto');
+            }
+        }
+
+        // ============================================
+        // GUARDAR PRODUCTO
+        // ============================================
+
+        async function saveProducto() {
+            const form = document.getElementById('formProducto');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const producto = {
+                nombre: document.getElementById('nombre').value.trim(),
+                sku: document.getElementById('sku').value.trim(),
+                descripcion: document.getElementById('descripcion').value.trim() || null,
+                precioUnitario: parseFloat(document.getElementById('precioUnitario').value),
+                stockActual: parseInt(document.getElementById('stockActual').value),
+                stockMinimo: parseInt(document.getElementById('stockMinimo').value),
+                unidadMedida: document.getElementById('unidadMedida').value,
+                activo: editingId ? document.getElementById('activo').value === 'true' : true
+            };
+
+            try {
+                showButtonLoading('btnGuardar', 'Guardando...');
+
+                if (editingId) {
+                    await productosAPI.update(editingId, producto);
+                    showSuccessAlert('Producto actualizado exitosamente');
+                } else {
+                    await productosAPI.create(producto);
+                    showSuccessAlert('Producto creado exitosamente');
+                }
+
+                modalProducto.hide();
+                form.reset();
+                await loadProductos();
+
+            } catch (error) {
+                console.error('Error guardando producto:', error);
+                showErrorAlert(error.message || 'Error al guardar el producto');
+            } finally {
+                hideButtonLoading('btnGuardar');
+            }
+        }
+
+        // ============================================
+        // ELIMINAR PRODUCTO
+        // ============================================
+
+        async function deleteProducto(id, nombre) {
+            if (!confirmDelete(nombre)) {
+                return;
+            }
+
+            try {
+                await productosAPI.delete(id);
+                showSuccessAlert('Producto eliminado exitosamente');
+                await loadProductos();
+                
+            } catch (error) {
+                console.error('Error eliminando producto:', error);
+                showErrorAlert(error.message || 'Error al eliminar el producto');
+            }
+        }
+
+    </script>
+
+</body>
+</html>
