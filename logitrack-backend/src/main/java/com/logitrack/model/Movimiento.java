@@ -1,6 +1,7 @@
 package com.logitrack.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.logitrack.audit.AuditListener;
 import com.logitrack.model.enums.TipoMovimiento;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -9,12 +10,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import jakarta.persistence.EntityListeners;
+
 
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "movimientos")
+@EntityListeners(AuditListener.class) 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

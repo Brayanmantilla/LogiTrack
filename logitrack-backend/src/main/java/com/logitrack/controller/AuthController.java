@@ -13,16 +13,17 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class AuthController {
-    
+
     private final AuthService authService;
-    
+
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
-    
+
     @PostMapping("/register")
     public ResponseEntity<LoginResponse> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
     }
+
 }

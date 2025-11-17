@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -20,30 +19,56 @@ public class Auditoria {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Column(nullable = false, length = 100)
+    private String entidad;
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_operacion", nullable = false, length = 20)
     private TipoOperacion tipoOperacion;
     
-    @Column(name = "entidad_afectada", nullable = false, length = 100)
-    private String entidadAfectada;
+    @Column(name = "fecha_operacion", nullable = false)
+    private LocalDateTime fechaOperacion;
     
-    @Column(name = "entidad_id", nullable = false)
-    private Long entidadId;
+    @Column(length = 1000)
+    private String detalles;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
-    
-    @Column(name = "valor_anterior", columnDefinition = "TEXT")
-    private String valorAnterior;
-    
-    @Column(name = "valor_nuevo", columnDefinition = "TEXT")
-    private String valorNuevo;
-    
-    @CreationTimestamp
-    @Column(name = "fecha_hora", nullable = false, updatable = false)
-    private LocalDateTime fechaHora;
-    
-    @Column(name = "direccion_ip", length = 45)
-    private String direccionIp;
+    @Column(name = "usuario_id")
+    private Long usuarioId;
+
+    // Setters adicionales para compatibilidad con AuditoriaService
+    public void setEntidadAfectada(String entidad) {
+        this.entidad = entidad;
+    }
+
+    public void setEntidadId(Long entidadId) {
+        // Campo no existe en la BD actual, ignorar
+    }
+
+    public void setUsuario(Object usuario) {
+        if (usuario instanceof Usuario) {
+            this.usuarioId = ((Usuario) usuario).getId();
+        }
+    }
+
+    public void setDireccionIp(String ip) {
+        // Campo no existe en la BD actual, ignorar
+    }
+
+    public void setValorAnterior(String valor) {
+        // Usar detalles para guardar esta info
+        if (this.detalles == null) {
+            this.detalles = "Anterior: " + valor;
+        } else {
+            this.detalles += " | Anterior: " + valor;
+        }
+    }
+
+    public void setValorNuevo(String valor) {
+        // Usar detalles para guardar esta info
+        if (this.detalles == null) {
+            this.detalles = "Nuevo: " + valor;
+        } else {
+            this.detalles += " | Nuevo: " + valor;
+        }
+    }
 }

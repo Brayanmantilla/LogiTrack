@@ -17,10 +17,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class AuditoriaService {
-    
+
     private final AuditoriaRepository auditoriaRepository;
     private final ObjectMapper objectMapper;
-    
+
     @Transactional
     public void registrarAuditoria(
             TipoOperacion tipoOperacion,
@@ -29,8 +29,7 @@ public class AuditoriaService {
             Usuario usuario,
             Object valorAnterior,
             Object valorNuevo,
-            String direccionIp
-    ) {
+            String direccionIp) {
         try {
             Auditoria auditoria = new Auditoria();
             auditoria.setTipoOperacion(tipoOperacion);
@@ -38,39 +37,39 @@ public class AuditoriaService {
             auditoria.setEntidadId(entidadId);
             auditoria.setUsuario(usuario);
             auditoria.setDireccionIp(direccionIp);
-            
+
             if (valorAnterior != null) {
                 auditoria.setValorAnterior(objectMapper.writeValueAsString(valorAnterior));
             }
-            
+
             if (valorNuevo != null) {
                 auditoria.setValorNuevo(objectMapper.writeValueAsString(valorNuevo));
             }
-            
+
             auditoriaRepository.save(auditoria);
             log.info("Auditoría registrada: {} - {} ID: {}", tipoOperacion, entidadAfectada, entidadId);
         } catch (Exception e) {
             log.error("Error al registrar auditoría", e);
         }
     }
-    
+
     @Transactional(readOnly = true)
     public List<Auditoria> getAllAuditorias() {
         return auditoriaRepository.findAll();
     }
-    
+
     @Transactional(readOnly = true)
     public List<Auditoria> getAuditoriasByUsuario(Long usuarioId) {
         return auditoriaRepository.findByUsuarioId(usuarioId);
     }
-    
+
     @Transactional(readOnly = true)
     public List<Auditoria> getAuditoriasByTipo(TipoOperacion tipo) {
         return auditoriaRepository.findByTipoOperacion(tipo);
     }
-    
+
     @Transactional(readOnly = true)
-    public List<Auditoria> getAuditoriasByFechas(LocalDateTime inicio, LocalDateTime fin) {
-        return auditoriaRepository.findByFechaHoraBetween(inicio, fin);
-    }
+public List<Auditoria> getAuditoriasPorRangoFechas(LocalDateTime inicio, LocalDateTime fin) {
+    return auditoriaRepository.findByFechaOperacionBetween(inicio, fin);
+}
 }

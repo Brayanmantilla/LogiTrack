@@ -9,11 +9,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import jakarta.persistence.EntityListeners;
+
+
+import com.logitrack.audit.AuditListener;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bodegas")
+@EntityListeners(AuditListener.class) 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -10,8 +10,12 @@ import java.util.List;
 
 @Repository
 public interface AuditoriaRepository extends JpaRepository<Auditoria, Long> {
-    List<Auditoria> findByUsuarioId(Long usuarioId);
+    
+    List<Auditoria> findByFechaOperacionBetween(LocalDateTime inicio, LocalDateTime fin);
+    
     List<Auditoria> findByTipoOperacion(TipoOperacion tipoOperacion);
-    List<Auditoria> findByEntidadAfectada(String entidadAfectada);
-    List<Auditoria> findByFechaHoraBetween(LocalDateTime inicio, LocalDateTime fin);
+    
+    List<Auditoria> findByUsuarioId(Long usuarioId);
+    
+    List<Auditoria> findByEntidad(String entidad);
 }

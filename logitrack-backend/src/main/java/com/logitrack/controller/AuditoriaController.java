@@ -35,10 +35,10 @@ public class AuditoriaController {
         return ResponseEntity.ok(auditoriaService.getAuditoriasByTipo(tipo));
     }
     
-    @GetMapping("/rango-fechas")
-    public ResponseEntity<List<Auditoria>> getAuditoriasByFechas(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
-        return ResponseEntity.ok(auditoriaService.getAuditoriasByFechas(inicio, fin));
-    }
+@GetMapping("/fechas")
+public ResponseEntity<List<Auditoria>> getAuditoriasByFechas(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
+    return ResponseEntity.ok(auditoriaService.getAuditoriasPorRangoFechas(inicio, fin));
+}
 }
